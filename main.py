@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, responses
 from schemas import SecretCreate
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
@@ -14,6 +14,12 @@ app = FastAPI(
     description = "A secure, one-time secret sharing API",
     version = "1.0.0"
 )
+
+
+@app.get("/")
+def root():
+    return responses.RedirectResponse(url="/docs")
+
 
 # session manager
 def get_db():
