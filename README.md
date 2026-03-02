@@ -1,4 +1,4 @@
-# SecureDrop API 🛡️
+# SecureDrop API
 
 A secure, stateless, "burn-after-reading" secret sharing API. 
 Built with modern DevSecOps principles, state-of-the-art AES-GCM encryption, and fully containerized for easy deployment.
