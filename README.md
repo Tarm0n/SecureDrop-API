@@ -26,7 +26,7 @@ The application is fully containerized. You don't need Python installed locally,
 
 1. **Clone the repository:**
    ```bash
-   git clone git@github.com:YOUR_USERNAME/SecureDrop-API.git
+   git clone git@github.com:Tarm0n/SecureDrop-API.git
    cd SecureDrop-API
    ```
 
