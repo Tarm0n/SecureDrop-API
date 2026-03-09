@@ -1,9 +1,10 @@
-from fastapi import FastAPI, Depends, HTTPException, responses
+from fastapi import FastAPI, Depends, HTTPException, responses, BackgroundTasks
 from schemas import SecretCreate
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from crypto import encrypt_secret, decrypt_secret
 import models, secrets
+import datetime
 
 
 #create all tables in models
@@ -21,6 +22,16 @@ def root():
     return responses.RedirectResponse(url="/docs")
 
 
+def delete_entry():
+    db = SessionLocal()
+    try:
+        now = datetime.datetime.now(datetime.timezone.utc)
+        db.query(models.Secret).filter(models.Secret.expires_at < now).delete()
+        db.commit()
+    finally:
+        db.close()
+
+
 # session manager
 def get_db():
     db = SessionLocal()
@@ -30,25 +41,22 @@ def get_db():
         db.close()
 
 
-@app.get("/")
-def check():
-    return "okay"
-
-
 @app.post("/secrets/")
-def create_secret(secret: SecretCreate, db: Session = Depends(get_db)):
+def create_secret(secret: SecretCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
 
     key = secrets.token_urlsafe(16)
 
     encrypted = encrypt_secret(secret.secret_text)
 
-    # create new entry
-    secr = models.Secret(secret_key=key, encrypted_data=encrypted)
+    # create new entrys
+    secr = models.Secret(secret_key=key, encrypted_data=encrypted, expires_at=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=24))
 
     # add entry to database and commit
     db.add(secr)
     db.commit()
     db.refresh(secr)
+
+    background_tasks.add_task(delete_entry, db)
 
     return {"message" : "Secret gespeichert", "link_key" : secr.secret_key}
 
