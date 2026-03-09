@@ -27,5 +27,7 @@ jobs:
         pip install pytest
 
     - name: Run Tests
+      env:
+        ENCRYPTION_KEY: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
       run: |
         pytest
